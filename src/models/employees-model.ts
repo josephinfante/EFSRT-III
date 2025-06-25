@@ -2,7 +2,20 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connections/sequelize";
 import { DepartmentsModel } from "./departments-model";
 
-export class EmployeesModel extends Model {}
+export class EmployeesModel extends Model {
+	public id!: string;
+	public first_name!: string;
+	public last_name!: string;
+	public email!: string;
+	public phone!: string | null;
+	public hire_at!: number;
+	public position!: string;
+	public salary!: number;
+	public department_id!: string | null;
+	public status!: string;
+	public created_at!: number;
+	public updated_at!: number | null;
+}
 
 EmployeesModel.init(
 	{

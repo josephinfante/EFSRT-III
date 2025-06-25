@@ -2,7 +2,16 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connections/sequelize";
 import { EmployeesModel } from "./employees-model";
 
-export class EmployeeHistoryModel extends Model {}
+export class EmployeeHistoryModel extends Model {
+	public id!: string;
+	public employee_id!: string;
+	public change_date!: number;
+	public old_position!: string | null;
+	public new_position!: string | null;
+	public notes!: string | null;
+	public created_at!: number;
+	public updated_at!: number | null;
+}
 
 EmployeeHistoryModel.init(
 	{

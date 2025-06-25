@@ -1,7 +1,13 @@
 import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connections/sequelize";
 
-export class DepartmentsModel extends Model {}
+export class DepartmentsModel extends Model {
+	public id!: string;
+	public name!: string;
+	public location!: string | null;
+	public created_at!: number;
+	public updated_at!: number | null;
+}
 
 DepartmentsModel.init(
 	{

@@ -2,7 +2,17 @@ import { DataTypes, Model } from "sequelize";
 import { sequelize } from "../connections/sequelize";
 import { RolesModel } from "./roles-model";
 
-export class UsersModel extends Model {}
+export class UsersModel extends Model {
+	public id!: string;
+	public first_name!: string;
+	public last_name!: string;
+	public email!: string;
+	public password!: string;
+	public role_id!: string;
+	public status!: string;
+	public created_at!: number;
+	public updated_at!: number | null;
+}
 
 UsersModel.init(
 	{
