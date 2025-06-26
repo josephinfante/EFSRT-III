@@ -1,0 +1,159 @@
+<div class="container mx-auto px-4 py-8">
+	<h1 id="formTitle" class="text-2xl font-bold mb-6">Add New Employee</h1>
+	<form id="employeeForm" action="/api/employees" method="POST" class="max-w-md">
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="first_name"> First Name </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="first_name"
+				name="first_name"
+				type="text"
+				placeholder="First Name"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="last_name"> Last Name </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="last_name"
+				name="last_name"
+				type="text"
+				placeholder="Last Name"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="email"> Email </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="email"
+				name="email"
+				type="email"
+				placeholder="Email"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="phone"> Phone </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="phone"
+				name="phone"
+				type="text"
+				placeholder="Phone"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="position"> Position </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="position"
+				name="position"
+				type="text"
+				placeholder="Position"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="salary"> Salary </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="salary"
+				name="salary"
+				type="number"
+				placeholder="Salary"
+			/>
+		</div>
+		<div class="mb-4">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="hire_at"> Hire Date </label>
+			<input
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="hire_at"
+				name="hire_at"
+				type="date"
+			/>
+		</div>
+		<div class="mb-6">
+			<label class="block text-gray-700 text-sm font-bold mb-2" for="department_id"> Department </label>
+			<select
+				class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+				id="department_id"
+				name="department_id"
+			>
+				<option value="">Select a Department</option>
+			</select>
+		</div>
+		<div class="flex items-center justify-between">
+			<button
+				id="formButton"
+				class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+				type="submit"
+			>
+				Add Employee
+			</button>
+		</div>
+	</form>
+</div>
+
+<script>
+	document.addEventListener("DOMContentLoaded", async function () {
+		const employeeId = "<%= employeeId || '' %>";
+
+		await fetch("/api/departments")
+			.then((res) => res.json())
+			.then((departments) => {
+				const select = document.getElementById("department_id");
+				departments.forEach((dep) => {
+					const option = document.createElement("option");
+					option.value = dep.id;
+					option.textContent = dep.name;
+					select.appendChild(option);
+				});
+			})
+			.catch(console.error);
+
+		if (employeeId) {
+			document.getElementById("formTitle").textContent = "Update Employee";
+			document.getElementById("formButton").textContent = "Update Employee";
+
+			const res = await fetch(`/api/employees/${employeeId}`);
+			const employee = await res.json();
+
+			document.getElementById("first_name").value = employee.first_name || "";
+			document.getElementById("last_name").value = employee.last_name || "";
+			document.getElementById("email").value = employee.email || "";
+			document.getElementById("phone").value = employee.phone || "";
+			document.getElementById("position").value = employee.position || "";
+			document.getElementById("salary").value = employee.salary || "";
+			document.getElementById("hire_at").value = employee.hire_at
+				? new Date(employee.hire_at).toISOString().split("T")[0]
+				: "";
+			document.getElementById("department_id").value = employee.department_id || "";
+		}
+
+		document.getElementById("employeeForm").addEventListener("submit", async function (e) {
+			e.preventDefault();
+
+			const form = e.target;
+			const formData = new FormData(form);
+			const data = Object.fromEntries(formData.entries());
+
+			if (data.hire_at) data.hire_at = new Date(data.hire_at).getTime();
+			data.salary = Number(data.salary);
+
+			const method = employeeId ? "PUT" : "POST";
+			const url = employeeId ? `/api/employees/${employeeId}` : "/api/employees";
+
+			try {
+				const res = await fetch(url, {
+					method,
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(data),
+				});
+				if (!res.ok) throw new Error("Error saving employee");
+				alert(employeeId ? "Employee updated!" : "Employee added!");
+				window.location.href = "/employees";
+			} catch (err) {
+				console.error(err);
+				alert("Something went wrong");
+			}
+		});
+	});
+</script>
