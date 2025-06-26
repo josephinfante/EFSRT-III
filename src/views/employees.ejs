@@ -1,0 +1,121 @@
+<div class="container mx-auto px-4 py-8">
+	<div class="flex justify-between items-center mb-6">
+		<h1 class="text-2xl font-bold">Employees</h1>
+		<a href="/departments/new" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+			Add New Department
+		</a>
+		<a href="/employees/new" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+			Add New Employee
+		</a>
+	</div>
+
+	<div class="overflow-x-auto">
+		<table class="min-w-full bg-white border border-gray-200">
+			<thead>
+				<tr>
+					<th class="py-2 px-4 border-b">ID</th>
+					<th class="py-2 px-4 border-b">First Name</th>
+					<th class="py-2 px-4 border-b">Last Name</th>
+					<th class="py-2 px-4 border-b">Email</th>
+					<th class="py-2 px-4 border-b">Phone</th>
+					<th class="py-2 px-4 border-b">Position</th>
+					<th class="py-2 px-4 border-b">Salary</th>
+					<th class="py-2 px-4 border-b">Department</th>
+					<th class="py-2 px-4 border-b">Actions</th>
+				</tr>
+			</thead>
+			<tbody id="employeeTableBody"></tbody>
+		</table>
+	</div>
+
+	<div class="flex justify-between items-center mt-6">
+		<button id="prevPage" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">
+			Previous
+		</button>
+		<span id="pageInfo" class="text-gray-700">Page 1 of 1</span>
+		<button id="nextPage" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded">Next</button>
+	</div>
+</div>
+
+<script>
+	let currentPage = 1;
+	const rowsPerPage = 10;
+
+	async function fetchEmployees(page) {
+		const response = await fetch(`/api/employees?page=${page}&limit=${rowsPerPage}`);
+		const data = await response.json();
+		return data;
+	}
+
+	function renderEmployeeRow(employee) {
+		const department = employee.department_name || "N/A";
+		return `
+      <tr>
+        <td class="py-2 px-4 border-b">${employee.id}</td>
+        <td class="py-2 px-4 border-b">${employee.first_name}</td>
+        <td class="py-2 px-4 border-b">${employee.last_name}</td>
+        <td class="py-2 px-4 border-b">${employee.email}</td>
+        <td class="py-2 px-4 border-b">${employee.phone || "N/A"}</td>
+        <td class="py-2 px-4 border-b">${employee.position}</td>
+        <td class="py-2 px-4 border-b">${employee.salary}</td>
+        <td class="py-2 px-4 border-b">${department}</td>
+        <td class="py-2 px-4 border-b text-center">
+          <a href="/employees/${employee.id}/edit" class="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded text-sm">Edit</a>
+          <button onclick="deleteEmployee('${employee.id}')" class="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded text-sm">Delete</button>
+        </td>
+      </tr>
+    `;
+	}
+
+	async function deleteEmployee(id) {
+		const confirmed = confirm("Are you sure you want to delete this employee?");
+		if (!confirmed) return;
+
+		try {
+			const response = await fetch(`/api/employees/${id}`, {
+				method: "DELETE",
+			});
+
+			if (!response.ok) {
+				const err = await response.json();
+				throw new Error(err.message || "Error deleting employee");
+			}
+
+			alert("Employee deleted successfully.");
+			updateTable(currentPage);
+		} catch (err) {
+			console.error("Delete error:", err);
+			alert("Could not delete employee.");
+		}
+	}
+
+	async function updateTable(page) {
+		const data = await fetchEmployees(page);
+		const tbody = document.getElementById("employeeTableBody");
+
+		tbody.innerHTML = "";
+
+		data.items.forEach((employee) => {
+			tbody.innerHTML += renderEmployeeRow(employee);
+		});
+
+		currentPage = page;
+		const totalPages = Math.ceil(data.count / rowsPerPage);
+		document.getElementById("pageInfo").textContent = `Page ${currentPage} of ${totalPages}`;
+
+		document.getElementById("prevPage").disabled = currentPage === 1;
+		document.getElementById("nextPage").disabled = currentPage >= totalPages;
+	}
+
+	document.getElementById("prevPage").addEventListener("click", () => {
+		if (currentPage > 1) {
+			updateTable(currentPage - 1);
+		}
+	});
+
+	document.getElementById("nextPage").addEventListener("click", () => {
+		updateTable(currentPage + 1);
+	});
+
+	updateTable(currentPage);
+</script>
