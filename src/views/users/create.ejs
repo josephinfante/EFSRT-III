@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Crear Usuario</title>
+</head>
+<body>
+  <h1>Crear nuevo usuario</h1>
+  <form action="/users" method="POST">
+    <label>Nombre:</label><br>
+    <input type="text" name="first_name" required><br>
+
+    <label>Apellido:</label><br>
+    <input type="text" name="last_name" required><br>
+
+    <label>Correo:</label><br>
+    <input type="email" name="email" required><br>
+
+    <label>Contraseña:</label><br>
+    <input type="password" name="password" required><br>
+
+    <label>Rol:</label><br>
+    <input type="text" name="role_id" required><br>
+
+    <label>Estado:</label><br>
+    <select name="status">
+      <option value="active">Activo</option>
+      <option value="inactive">Inactivo</option>
+    </select><br><br>
+
+    <button type="submit">Guardar</button>
+  </form>
+  <br>
+  <a href="/users">← Volver a la lista</a>
+</body>
+</html>
