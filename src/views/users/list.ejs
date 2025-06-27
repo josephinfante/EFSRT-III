@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Lista de Usuarios</title>
+  <title><%= title || "Lista de Usuarios" %></title>
 </head>
 <body>
   <h1>Usuarios</h1>
-  <a href="/users/create"> Crear nuevo usuario</a>
+  <a href="/users/create">Crear nuevo usuario</a>
   <table border="1" cellpadding="8" cellspacing="0">
     <thead>
       <tr>
@@ -17,17 +17,17 @@
       </tr>
     </thead>
     <tbody>
-      <% items.forEach(user => { %>
+      <% users.forEach(user => { %>
         <tr>
           <td><%= user.first_name %> <%= user.last_name %></td>
           <td><%= user.email %></td>
           <td><%= user.role_id %></td>
           <td><%= user.status %></td>
           <td>
-            <a href="/users/<%= user.id %>"> Ver</a> |
-            <a href="/users/<%= user.id %>/edit"> Editar</a> |
+            <a href="/users/<%= user.id %>">Ver</a> |
+            <a href="/users/<%= user.id %>/edit">Editar</a> |
             <form action="/users/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;">
-              <button type="submit">Eliminar</button>
+              <button type="submit" onclick="return confirm('¿Estás seguro que deseas eliminar este usuario?')">Eliminar</button>
             </form>
           </td>
         </tr>

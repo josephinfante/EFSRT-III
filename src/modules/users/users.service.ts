@@ -11,7 +11,7 @@ export class UsersService {
 		if (!last_name) throw new ValidationError("Last name is required");
 		if (!email) throw new ValidationError("Email is required");
 		if (!password) throw new ValidationError("Password is required");
-		if (!role_id) throw new ValidationError("Role is required");
+		if (!role_id) throw new ValidationError("Role ID is required");
 
 		const [user, created] = await UsersModel.findOrCreate({
 			where: { email },
@@ -53,15 +53,6 @@ export class UsersService {
 		return { items: rows, count, totalPages, hasNextPage };
 	}
 
-	async delete(id: string): Promise<void> {
-		if (!id) throw new ValidationError("ID is required");
-
-		const user = await UsersModel.findOne({ where: { id } });
-		if (!user) throw new ValidationError("User not found");
-
-		await user.destroy();
-	}
-
 	async findById(id: string): Promise<User> {
 		if (!id) throw new ValidationError("ID is required");
 
@@ -77,29 +68,29 @@ export class UsersService {
 		const user = await UsersModel.findOne({ where: { id } });
 		if (!user) throw new ValidationError("User not found");
 
-		if (data?.first_name && data.first_name !== user.first_name) {
+		if (data.first_name && data.first_name !== user.first_name) {
 			user.set("first_name", data.first_name);
 		}
 
-		if (data?.last_name && data.last_name !== user.last_name) {
+		if (data.last_name && data.last_name !== user.last_name) {
 			user.set("last_name", data.last_name);
 		}
 
-		if (data?.email && data.email !== user.email) {
+		if (data.email && data.email !== user.email) {
 			const emailExists = await UsersModel.findOne({ where: { email: data.email } });
 			if (emailExists) throw new ValidationError("Email is already in use");
 			user.set("email", data.email);
 		}
 
-		if (data?.password && data.password !== user.password) {
+		if (data.password && data.password !== user.password) {
 			user.set("password", data.password);
 		}
 
-		if (data?.role_id && data.role_id !== user.role_id) {
+		if (data.role_id && data.role_id !== user.role_id) {
 			user.set("role_id", data.role_id);
 		}
 
-		if (data?.status && data.status !== user.status) {
+		if (data.status && data.status !== user.status) {
 			user.set("status", data.status);
 		}
 
@@ -109,9 +100,13 @@ export class UsersService {
 
 		return user;
 	}
+
+	async delete(id: string): Promise<void> {
+		if (!id) throw new ValidationError("ID is required");
+
+		const user = await UsersModel.findOne({ where: { id } });
+		if (!user) throw new ValidationError("User not found");
+
+		await user.destroy();
+	}
 }
-
-
-
-
-

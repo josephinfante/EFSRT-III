@@ -32,7 +32,7 @@ export class EmployeesService {
 			throw new ValidationError("Department is required");
 		}
 
-		const [employee, created] = await EmployeesModel.findOrCreate({
+				const [employee, created] = await EmployeesModel.findOrCreate({
 			where: { email },
 			defaults: {
 				id: Generate.id(),
@@ -60,7 +60,7 @@ export class EmployeesService {
 	async findAll(query: {
 		page: string;
 		limit: string;
-	}): Promise<{ items: Employee[]; count: number; totalPages: number; hasNextPage: boolean }> {
+		}): Promise<{ items: Employee[]; count: number; totalPages: number; hasNextPage: boolean }> {
 		const size = Math.max(1, query?.limit ? Number(query.limit) : 10);
 		const page = Math.max(1, query?.page ? Number(query.page) : 1);
 		const offset = (page - 1) * size;

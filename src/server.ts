@@ -5,6 +5,8 @@ import path from "path";
 import { errorMiddleware } from "./middlewares/error-middleware";
 import expressLayouts from "express-ejs-layouts";
 
+
+
 interface ServerOption {
 	port?: number;
 	routes: Router;
@@ -22,6 +24,7 @@ export class Server {
 	}
 
 	async start() {
+	    
 		this.app.set("trust proxy", true);
 		this.app.use(express.json());
 		this.app.use(express.urlencoded({ extended: true }));

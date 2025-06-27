@@ -1,6 +1,6 @@
 import { Router } from "express";
-import { UsersService } from "./users.service";
 import { UsersController } from "./users.controller";
+import { UsersService } from "./users.service";
 
 export class UsersRouter {
 	static get routes(): Router {
@@ -8,17 +8,14 @@ export class UsersRouter {
 		const service = new UsersService();
 		const controller = new UsersController(service);
 
-		router.post("/", controller.create.bind(controller));
-		router.get("/", controller.findAll.bind(controller));
-		router.delete("/:id", controller.delete.bind(controller));
-		router.get("/:id", controller.findById.bind(controller));
-		router.put("/:id", controller.update.bind(controller));
+		router.get("/", controller.findAll); // Lista
+		router.get("/create", controller.formCreate); // Form crear
+		router.post("/", controller.create); // POST crear
+		router.get("/:id", controller.findById); // Detalle
+		router.get("/:id/edit", controller.formEdit); // Form editar
+		router.post("/:id", controller.update); // POST editar
+		router.post("/:id/delete", controller.delete); // POST eliminar
 
 		return router;
 	}
 }
-
-
-
-
-

@@ -4,6 +4,8 @@ import { authMiddleware } from "./middlewares/auth-middleware";
 import { checkAuth } from "./middlewares/check-auth-middleware";
 import { DepartmentsRouter } from "./modules/departments/departments.router";
 import { EmployeesRouter } from "./modules/employees/employees.router";
+import { UsersRouter } from "./modules/users/users.router";
+
 
 export class ServerRouter {
 	static get routes(): Router {
@@ -34,19 +36,28 @@ export class ServerRouter {
 				employeeId: req.params.id,
 			});
 		});
+
 		router.get("/departments/new", authMiddleware, (_req: Request, res: Response) =>
 			res.render("add-new-department", { title: "Add New Department" }),
 		);
+        
 
-		router.use((_req: Request, res: Response) => {
-			const user = res.locals?.user;
+		router.use("/users", authMiddleware, UsersRouter.routes); // <--- esta es clave
 
-			if (user) {
-				return res.redirect("/home");
-			}
+        router.get("/", checkAuth, (_req, res) => res.render("login", { title: "Login" }));
 
-			return res.redirect("/");
-		});
+        router.get("/home", authMiddleware, (_req, res) =>
+	    res.render("home", { title: "Home", user: res.locals.user }),
+);
+
+        router.get("/employees", authMiddleware, (_req, res) =>
+	    res.render("employees", { title: "Employees", employees: [] }),
+);
+
+        router.get("/departments/new", authMiddleware, (_req, res) =>
+	    res.render("add-new-department", { title: "Add New Department" }),
+);
+	
 
 		return router;
 	}
