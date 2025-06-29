@@ -1,38 +1,80 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8">
-  <title><%= title || 'Crear Usuario' %></title>
-</head>
-<body>
-  <h1>Crear nuevo usuario</h1>
+<div class="max-w-md mx-auto p-6 bg-white rounded-xl shadow-md mt-10">
+	<h1 class="text-2xl font-bold mb-6 text-center text-gray-800">Crear nuevo usuario</h1>
 
-  <form action="/users" method="POST">
-    <label>Nombre:</label><br>
-    <input type="text" name="first_name" required><br><br>
+	<form action="/users" method="POST" class="space-y-4">
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Nombre</label>
+			<input
+				type="text"
+				name="first_name"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			/>
+		</div>
 
-    <label>Apellido:</label><br>
-    <input type="text" name="last_name" required><br><br>
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Apellido</label>
+			<input
+				type="text"
+				name="last_name"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			/>
+		</div>
 
-    <label>Correo:</label><br>
-    <input type="email" name="email" required><br><br>
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Correo</label>
+			<input
+				type="email"
+				name="email"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			/>
+		</div>
 
-    <label>Contraseña:</label><br>
-    <input type="password" name="password" required><br><br>
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Contraseña</label>
+			<input
+				type="password"
+				name="password"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			/>
+		</div>
 
-    <label>Rol:</label><br>
-    <input type="text" name="role_id" required><br><br>
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Rol</label>
+			<input
+				type="text"
+				name="role_id"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			/>
+		</div>
 
-    <label>Estado:</label><br>
-    <select name="status" required>
-      <option value="active">Activo</option>
-      <option value="inactive">Inactivo</option>
-    </select><br><br>
+		<div>
+			<label class="block text-sm font-medium text-gray-700">Estado</label>
+			<select
+				name="status"
+				required
+				class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+			>
+				<option value="active">Activo</option>
+				<option value="inactive">Inactivo</option>
+			</select>
+		</div>
 
-    <button type="submit">Guardar</button>
-  </form>
+		<div class="pt-4">
+			<button
+				type="submit"
+				class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+			>
+				Guardar
+			</button>
+		</div>
+	</form>
 
-  <br>
-  <a href="/users">← Volver a la lista</a>
-</body>
-</html>
+	<div class="mt-4 text-center">
+		<a href="/users" class="text-indigo-600 hover:underline text-sm">← Volver a la lista</a>
+	</div>
+</div>

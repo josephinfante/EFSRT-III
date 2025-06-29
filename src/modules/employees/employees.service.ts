@@ -1,3 +1,4 @@
+import { col, fn, Op } from "sequelize";
 import { ValidationError } from "../../errors/validation-error";
 import { Employee } from "../../interface/employees.interface";
 import { DepartmentsModel } from "../../models/departments-model";
@@ -32,7 +33,7 @@ export class EmployeesService {
 			throw new ValidationError("Department is required");
 		}
 
-				const [employee, created] = await EmployeesModel.findOrCreate({
+		const [employee, created] = await EmployeesModel.findOrCreate({
 			where: { email },
 			defaults: {
 				id: Generate.id(),
@@ -60,7 +61,7 @@ export class EmployeesService {
 	async findAll(query: {
 		page: string;
 		limit: string;
-		}): Promise<{ items: Employee[]; count: number; totalPages: number; hasNextPage: boolean }> {
+	}): Promise<{ items: Employee[]; count: number; totalPages: number; hasNextPage: boolean }> {
 		const size = Math.max(1, query?.limit ? Number(query.limit) : 10);
 		const page = Math.max(1, query?.page ? Number(query.page) : 1);
 		const offset = (page - 1) * size;
@@ -167,5 +168,76 @@ export class EmployeesService {
 		await employee.save();
 
 		return employee;
+	}
+
+	async getMetrics() {
+		const now = Date.now();
+		const oneMonthAgo = now - 30 * 24 * 60 * 60 * 1000;
+
+		const [totalEmployees, averageSalaryResult, hiredLastMonth, employeesPerDepartment] = await Promise.all([
+			// Total de empleados
+			EmployeesModel.count(),
+
+			// Promedio salarial (agregamos tipado explícito)
+			EmployeesModel.findOne({
+				attributes: [[fn("AVG", col("salary")), "averageSalary"]],
+				raw: true,
+			}) as unknown as Promise<{ averageSalary: string | null }>,
+
+			// Contratados el último mes
+			EmployeesModel.count({
+				where: {
+					hire_at: {
+						[Op.gte]: oneMonthAgo,
+					},
+				},
+			}),
+
+			// Agrupados por departamento
+			EmployeesModel.findAll({
+				attributes: ["department_id", [fn("COUNT", col("id")), "count"]],
+				group: ["department_id"],
+				raw: true,
+			}),
+		]);
+
+		// Obtener nombres de departamentos
+		const departmentIds = employeesPerDepartment.map((e: any) => e.department_id).filter(Boolean);
+
+		let departmentsMap: Record<string, string> = {};
+
+		if (departmentIds.length > 0) {
+			const departments = await DepartmentsModel.findAll({
+				where: { id: departmentIds },
+				raw: true,
+			});
+
+			departmentsMap = Object.fromEntries(departments.map((d: any) => [d.id, d.name]));
+		}
+
+		const employeesPerDeptWithNames = employeesPerDepartment.map((e: any) => ({
+			department_id: e.department_id,
+			department_name: departmentsMap[e.department_id] || "Sin asignar",
+			count: Number(e.count),
+		}));
+
+		return {
+			totalEmployees,
+			averageSalary: Number(averageSalaryResult.averageSalary || 0).toFixed(2),
+			hiredLastMonth,
+			totalDepartments: Object.keys(departmentsMap).length,
+			employeesPerDepartment: employeesPerDeptWithNames,
+		};
+	}
+
+	async getAllEmployeesWithDepartments() {
+		const employees = await EmployeesModel.findAll({ raw: true });
+		const departments = await DepartmentsModel.findAll({ raw: true });
+		const departmentsMap = Object.fromEntries(departments.map((d) => [d.id, d.name]));
+
+		return employees.map((emp) => ({
+			...emp,
+			department_name: departmentsMap[emp.department_id as string] || "Sin asignar",
+		}));
 	}
 }

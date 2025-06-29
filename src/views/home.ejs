@@ -1,6 +1,147 @@
-<div class="flex items-center justify-center min-h-screen">
-	<div class="px-8 py-6 mt-4 text-left bg-white shadow-lg">
-		<h3 class="text-2xl font-bold text-center">Welcome, <%= user.first_name %> <%= user.last_name %>!</h3>
-		<p class="mt-4">You are successfully logged in.</p>
-	</div>
-</div>
+<!DOCTYPE html>
+<html lang="es">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Dashboard de Empleados</title>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+		<script src="https://cdn.tailwindcss.com"></script>
+	</head>
+	<body class="bg-gray-100 min-h-screen">
+		<div class="max-w-7xl mx-auto p-6">
+			<h1 class="text-4xl font-bold mb-8">Dashboard de Empleados</h1>
+
+			<div class="flex gap-4 mb-6">
+				<a
+					href="/api/employees/export/excel"
+					target="_blank"
+					class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+				>
+					Descargar Excel
+				</a>
+				<a
+					href="/api/employees/export/pdf"
+					target="_blank"
+					class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition"
+				>
+					Descargar PDF
+				</a>
+			</div>
+
+			<!-- Cards métricas -->
+			<div id="metrics-cards" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mb-10">
+				<!-- Se llenarán dinámicamente -->
+			</div>
+
+			<!-- Gráfico empleados por departamento -->
+			<div class="bg-white rounded-lg shadow p-6 mb-10">
+				<h2 class="text-2xl font-semibold mb-4">Empleados por Departamento</h2>
+				<canvas id="departmentChart" height="150"></canvas>
+			</div>
+
+			<!-- Tabla departamentos -->
+			<div id="departments-table-container" class="bg-white rounded-lg shadow overflow-x-auto">
+				<!-- Se llenará dinámicamente -->
+			</div>
+		</div>
+
+		<script>
+			async function loadMetrics() {
+				try {
+					const res = await fetch("/api/employees/metrics");
+					if (!res.ok) throw new Error("Error al cargar métricas");
+					const metrics = await res.json();
+
+					// Cards métricas
+					const cardsContainer = document.getElementById("metrics-cards");
+					cardsContainer.innerHTML = `
+          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+            <span class="text-gray-500 uppercase text-xs font-semibold">Total Empleados</span>
+            <span class="text-3xl font-extrabold mt-2">${metrics.totalEmployees}</span>
+          </div>
+          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+            <span class="text-gray-500 uppercase text-xs font-semibold">Promedio Salarial (S/)</span>
+            <span class="text-3xl font-extrabold mt-2">${metrics.averageSalary}</span>
+          </div>
+          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+            <span class="text-gray-500 uppercase text-xs font-semibold">Contratados Último Mes</span>
+            <span class="text-3xl font-extrabold mt-2">${metrics.hiredLastMonth}</span>
+          </div>
+          <div class="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+            <span class="text-gray-500 uppercase text-xs font-semibold">Departamentos</span>
+            <span class="text-3xl font-extrabold mt-2">${metrics.totalDepartments}</span>
+          </div>
+        `;
+
+					// Gráfico de barras
+					const labels = metrics.employeesPerDepartment.map((dep) => dep.department_name);
+					const dataCounts = metrics.employeesPerDepartment.map((dep) => dep.count);
+
+					const ctx = document.getElementById("departmentChart").getContext("2d");
+					new Chart(ctx, {
+						type: "bar",
+						data: {
+							labels: labels,
+							datasets: [
+								{
+									label: "Cantidad de Empleados",
+									data: dataCounts,
+									backgroundColor: "rgba(59, 130, 246, 0.7)",
+									borderColor: "rgba(59, 130, 246, 1)",
+									borderWidth: 1,
+									borderRadius: 5,
+								},
+							],
+						},
+						options: {
+							responsive: true,
+							scales: {
+								y: {
+									beginAtZero: true,
+									ticks: {
+										stepSize: 1,
+									},
+								},
+							},
+						},
+					});
+
+					// Tabla departamentos
+					const tableContainer = document.getElementById("departments-table-container");
+					let tableHtml = `
+          <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Departamento</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cantidad de Empleados</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+        `;
+
+					metrics.employeesPerDepartment.forEach((dep) => {
+						tableHtml += `
+            <tr class="hover:bg-gray-100">
+              <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${dep.department_name}</td>
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${dep.count}</td>
+            </tr>
+          `;
+					});
+
+					tableHtml += `
+            </tbody>
+          </table>
+        `;
+
+					tableContainer.innerHTML = tableHtml;
+				} catch (error) {
+					console.error(error);
+					document.getElementById("metrics-cards").innerHTML =
+						'<p class="text-red-600">Error al cargar las métricas</p>';
+				}
+			}
+
+			document.addEventListener("DOMContentLoaded", loadMetrics);
+		</script>
+	</body>
+</html>

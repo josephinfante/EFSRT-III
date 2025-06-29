@@ -1,38 +1,48 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title || "Lista de Usuarios" %></title>
-</head>
-<body>
-  <h1>Usuarios</h1>
-  <a href="/users/create">Crear nuevo usuario</a>
-  <table border="1" cellpadding="8" cellspacing="0">
-    <thead>
-      <tr>
-        <th>Nombre</th>
-        <th>Email</th>
-        <th>Rol</th>
-        <th>Estado</th>
-        <th>Acciones</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% users.forEach(user => { %>
+<div class="max-w-6xl mx-auto mt-10 px-4">
+  <!-- Enlace Crear -->
+  <div class="flex justify-end mb-4">
+    <a href="/users/create"
+      class="inline-block bg-indigo-600 text-white font-medium px-4 py-2 rounded-md hover:bg-indigo-700 transition-colors">
+      + Crear nuevo usuario
+    </a>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200 text-sm text-left">
+      <thead class="bg-gray-100 text-gray-700 uppercase text-xs">
         <tr>
-          <td><%= user.first_name %> <%= user.last_name %></td>
-          <td><%= user.email %></td>
-          <td><%= user.role_id %></td>
-          <td><%= user.status %></td>
-          <td>
-            <a href="/users/<%= user.id %>">Ver</a> |
-            <a href="/users/<%= user.id %>/edit">Editar</a> |
-            <form action="/users/<%= user.id %>?_method=DELETE" method="POST" style="display:inline;">
-              <button type="submit" onclick="return confirm('¿Estás seguro que deseas eliminar este usuario?')">Eliminar</button>
-            </form>
-          </td>
+          <th class="px-6 py-3">Nombre</th>
+          <th class="px-6 py-3">Email</th>
+          <th class="px-6 py-3">Rol</th>
+          <th class="px-6 py-3">Estado</th>
+          <th class="px-6 py-3">Acciones</th>
         </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</body>
-</html>
+      </thead>
+      <tbody class="divide-y divide-gray-200">
+        <% users.forEach(user => { %>
+          <tr class="hover:bg-gray-50">
+            <td class="px-6 py-4"><%= user.first_name %> <%= user.last_name %></td>
+            <td class="px-6 py-4"><%= user.email %></td>
+            <td class="px-6 py-4"><%= user.role_id %></td>
+            <td class="px-6 py-4">
+              <span
+                class="inline-block px-2 py-1 rounded-full text-xs font-semibold 
+                  <%= user.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' %>">
+                <%= user.status === 'active' ? 'Activo' : 'Inactivo' %>
+              </span>
+            </td>
+            <td class="px-6 py-4 space-x-2">
+              <a href="/users/<%= user.id %>" class="text-indigo-600 hover:underline">Ver</a>
+              <a href="/users/<%= user.id %>/edit" class="text-yellow-600 hover:underline">Editar</a>
+              <form action="/users/<%= user.id %>/delete" method="POST" class="inline"
+                onsubmit="return confirm('¿Estás seguro que deseas eliminar este usuario?')">
+                <button type="submit" class="text-red-600 hover:underline">Eliminar</button>
+              </form>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</div>

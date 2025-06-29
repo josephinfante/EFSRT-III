@@ -51,6 +51,7 @@ export class UsersController {
 	// Eliminar usuario
 	delete = tryCatch(async (req: Request, res: Response) => {
 		const { id } = req.params;
+		console.log(id);
 		await this.usersService.delete(id);
 		res.redirect("/users");
 	});
